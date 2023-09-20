@@ -15,7 +15,7 @@ fn main() {
     println!("{:?}",vec_arr);
     let mut key1 = [0u8; 20];
 
-    pbkdf2::pbkdf2_hmac::<Sha256>(vec_arr,salt,500,&mut key1);
+    pbkdf2::pbkdf2_hmac::<Sha256>(vec_arr,salt,600_000,&mut key1);
 
     println!("{:?}", vec_arr)
 }
