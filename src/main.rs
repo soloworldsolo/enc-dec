@@ -1,12 +1,14 @@
 extern crate aes_gcm;
 extern crate rand;
 
-use std::io::{Error, ErrorKind};
+use std::fs::{File, OpenOptions};
+use std::io::{ ErrorKind, Read, Write};
+use std::path::Path;
 use aes_gcm::{
     aead::{Aead, AeadCore, KeyInit, OsRng,generic_array::GenericArray,Payload},
     Aes256Gcm, Key, Nonce
 };
-
+use std::env;
 use rand::Rng;
 
 
@@ -14,25 +16,34 @@ pub struct block {
     data: Vec<u8>,
     nonce: Vec<u8>
 }
+
+ static  KEY:&str = "5zOYqRvMSbbNPRfFtct3fYogQszzucF7";
 fn main() {
-   let enc = encrypt("soloworld".as_bytes(), "5zOYqRvMSbbNPRfFtct3fYogQszzucF7");
+
+
+
+
+    let mut  open_file_read = File::options().read(true).open("/Users/hokage/Documents/1.jpeg",).expect("couldnot open file");
+    let mut buff = Vec::new();
+    let input=  open_file_read.read_to_end(&mut buff).expect("coould not read files");
+    println!("{:?}", buff);
+    println!("..............printing nonce .................");
 }
 
 
-pub fn decrypt( encryptedTex: &block,  password:&str) {
+pub fn decrypt( encrypted_tex: &block,  password:&str) {
     let password_byte = password.as_bytes();
     let key: &Key<Aes256Gcm> = password_byte.into();
-    let nonce = &encryptedTex.nonce;
-    let data = &encryptedTex.data;
+    let nonce = &encrypted_tex.nonce;
+    let data = &encrypted_tex.data;
 
    let nonce = aes_gcm::Nonce::from_slice(&nonce);
 
 
     let cipher = Aes256Gcm::new(&key);
     let op = cipher.decrypt(&nonce ,data.as_slice());
-    //  let plaintext = cipher.decrypt(nonce, &*encryptedTex[15..].as_ref()).unwrap();
 }
-pub fn encrypt(data: &[u8], password: &str)  {
+pub fn encrypt(data: &[u8], password: &str)  -> Result<block, aes_gcm::Error>  {
     let password_byte = password.as_bytes();
 
     let key: &Key<Aes256Gcm> = password_byte.into();
@@ -45,15 +56,13 @@ pub fn encrypt(data: &[u8], password: &str)  {
         Ok(encrpted) => {
 
             let e = block { data: encrpted, nonce:nonce.to_vec() };
-            e
+           return  Ok(e)
         }
         Err(err) => {
-            panic!("could not encrypt")
+           return Err(err) ;
         }
-    };
+    };    }
 
 
-decrypt(&encrypted_data ,password);
 
 
-}
